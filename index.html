@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>집반찬 - 매일 아침 따뜻한 우리 집 반찬 배달</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="switchTab(document.querySelectorAll('.nav-item')[0], 'intro')">🍱 집반찬</div>
+            <div class="user-info" id="user-header"></div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <div class="nav-item active" onclick="switchTab(this, 'intro')">가게 소개</div>
+            <div class="nav-item" onclick="switchTab(this, 'menu')">반찬 목록</div>
+            <div class="nav-item" onclick="switchTab(this, 'ai-recommend')">🤖 AI 반찬 추천</div>
+            <div class="nav-item" onclick="switchTab(this, 'cart')">장바구니 (<span id="cart-count">0</span>)</div>
+            <div class="nav-item" onclick="switchTab(this, 'mileage')">마일리지 충전</div>
+            <div class="nav-item" onclick="switchTab(this, 'admin')" id="admin-nav" style="display:none;">🔒 관리자 페이지</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- 1. 가게 소개 -->
+        <section id="intro" class="section active">
+            <div class="hero">
+                <h2>바쁜 일상, 따뜻하게 올려지는 우리 가족 반찬</h2>
+                <p>매일 새벽 정성껏 만든 수제 반찬을 아침 7시까지 집 앞 보온 박스에 전달해 드립니다.</p>
+            </div>
+            <div class="card">
+                <h3>💡 집반찬 아침 배달 서비스 안내</h3>
+                <ul style="margin: 15px 0 0 20px; line-height: 1.8;">
+                    <li><strong>당일 제조 원칙:</strong> 자정까지 주문하시면 다음 날 아침 7시 전 배달 완료!</li>
+                    <li><strong>스마트 보온·보냉 시스템:</strong> 전용 보온 키퍼로 신선함 그대로 도착합니다.</li>
+                    <li><strong>마일리지 결제 혜택:</strong> 충전 시 추가 적립 혜택을 제공합니다.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 2. 반찬 목록 -->
+        <section id="menu" class="section">
+            <div class="card">
+                <h2>🍱 오늘의 아침 반찬 목록</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">반찬 이미지를 직접 변경하거나 선택하여 장바구니에 담으세요.</p>
+                <div class="menu-grid" id="menu-grid"></div>
+            </div>
+        </section>
+
+        <!-- 3. AI 맞춤 반찬 추천 -->
+        <section id="ai-recommend" class="section">
+            <div class="card">
+                <h2>🤖 AI 맞춤 아침 반찬 추천</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px;">오늘의 건강 상태나 기분을 입력하면 AI 영양사가 맞춤 반찬을 추천해 드립니다.</p>
+                
+                <div class="form-group">
+                    <label>오늘의 내 컨디션 / 식사 취향</label>
+                    <input type="text" id="ai-prompt" placeholder="예: 오늘 아침엔 속이 편안하고 단백질이 풍부한 식단을 원해!">
+                </div>
+                <button class="btn-primary" onclick="getAIRecommendation()">AI 맞춤 반찬 추천받기</button>
+
+                <div class="ai-box" id="ai-result" style="display:none;">
+                    <strong>🍱 AI 영양사 추천 결과:</strong>
+                    <p id="ai-output-text" style="margin-top:10px; white-space: pre-line; line-height:1.6;"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 장바구니 & 주문 -->
+        <section id="cart" class="section">
+            <div class="card">
+                <h2>🛒 장바구니 및 아침 배달 주문</h2>
+                <div id="cart-list"></div>
+                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+                <h3>총 결제 금액: <span id="cart-total-price" style="color:var(--primary)">0</span>원</h3>
+                <div style="margin-top: 20px;">
+                    <button class="btn-primary" onclick="placeOrder()">마일리지로 결제 및 아침 배달 신청</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 마일리지 충전 -->
+        <section id="mileage" class="section">
+            <div class="card">
+                <h2>💳 마일리지 충전 및 관리</h2>
+                <p style="margin-bottom: 15px;">현재 보유 마일리지: <strong id="user-mileage-display" style="color:var(--primary); font-size:18px;">0 P</strong></p>
+                <div class="form-group">
+                    <label>충전할 금액 선택</label>
+                    <select id="charge-amount">
+                        <option value="10000">10,000원 (+500P 적립)</option>
+                        <option value="30000">30,000원 (+2,000P 적립)</option>
+                        <option value="50000">50,000원 (+5,000P 적립)</option>
+                    </select>
+                </div>
+                <button class="btn-primary" onclick="chargeMileage()">마일리지 충전하기</button>
+            </div>
+        </section>
+
+        <!-- 6. 관리자 페이지 -->
+        <section id="admin" class="section">
+            <div class="card">
+                <h2>🔒 관리자 모드 - 고객 주문 및 배송 정보</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>주문일시</th>
+                                <th>고객명</th>
+                                <th>연락처</th>
+                                <th>아침 배송지 주소</th>
+                                <th>주문 반찬</th>
+                                <th>결제금액</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-order-list"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 로그인/회원가입 모달 -->
+        <section id="auth-modal" class="card" style="display:none; max-width: 400px; margin: 30px auto;">
+            <h2 id="auth-title">로그인</h2>
+            <div class="form-group" style="margin-top:15px;">
+                <label>아이디</label>
+                <input type="text" id="auth-username" placeholder="아이디 입력 (관리자는 admin)">
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" id="auth-password" placeholder="비밀번호 입력 (관리자는 1234)">
+            </div>
+            <div id="signup-extra-fields" style="display:none;">
+                <div class="form-group">
+                    <label>성함</label>
+                    <input type="text" id="auth-name" placeholder="홍길동">
+                </div>
+                <div class="form-group">
+                    <label>연락처</label>
+                    <input type="text" id="auth-phone" placeholder="010-0000-0000">
+                </div>
+                <div class="form-group">
+                    <label>아침 배송지 주소</label>
+                    <input type="text" id="auth-address" placeholder="도봉구/노원구 상세주소">
+                </div>
+            </div>
+            <button class="btn-primary" onclick="submitAuth()" id="auth-submit-btn">로그인</button>
+            <p style="text-align: center; margin-top: 15px; font-size: 13px; cursor: pointer; color: var(--primary);" onclick="toggleAuthMode()">
+                <span id="auth-toggle-text">계정이 없으신가요? 회원가입</span>
+            </p>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
