@@ -95,7 +95,7 @@ function renderCart() {
     let total = 0;
     list.innerHTML = cart.map(item => {
         total += item.price;
-        return `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #ddd;">
+        return `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #ddd;">
             <span>${item.name}</span>
             <strong>${item.price.toLocaleString()}원</strong>
         </div>`;
